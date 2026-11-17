@@ -1,4 +1,4 @@
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { LayoutGroup, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_LABELS, LIMITS } from "../../../../shared/constants";
 import type { ClientView, PlayerPublic, ResponseCard, StandingRow } from "../../../../shared/views";
@@ -115,13 +115,11 @@ function TvScreen({ view }: { view: ClientView }) {
   return (
     <>
       <TvHeader view={view} />
-      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={key}
           className="absolute inset-0"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -30 }}
           transition={{ duration: 0.45 }}
         >
           {view.phase === "lobby" && <TvLobby view={view} />}
@@ -132,7 +130,6 @@ function TvScreen({ view }: { view: ClientView }) {
           {view.phase === "scoreboard" && <TvScoreboard view={view} />}
           {view.phase === "gameOver" && <TvFinal view={view} />}
         </motion.div>
-      </AnimatePresence>
     </>
   );
 }
@@ -162,14 +159,12 @@ function TvLobby({ view }: { view: ClientView }) {
             : `${view.players.length} players ready! Waiting for the host to start…`}
         </p>
         <div className="grid grid-cols-5 gap-6" data-testid="tv-lobby-players">
-          <AnimatePresence>
             {slots.map((p, i) =>
               p ? (
                 <motion.div
                   key={p.id}
                   initial={{ scale: 0, rotate: -20 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0 }}
                   transition={{ type: "spring", stiffness: 260, damping: 14 }}
                   className="flex flex-col items-center gap-2"
                 >
@@ -183,7 +178,6 @@ function TvLobby({ view }: { view: ClientView }) {
                 </div>
               ),
             )}
-          </AnimatePresence>
         </div>
       </div>
     </div>
@@ -324,12 +318,10 @@ function TvGuessing({ view }: { view: ClientView }) {
           <TimerRing timer={view.timer} size={160} testId="tv-timer" />
         </div>
       </div>
-      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={page}
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -60 }}
           className="grid flex-1 gap-10"
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridAutoRows: "1fr" }}
         >
@@ -337,7 +329,6 @@ function TvGuessing({ view }: { view: ClientView }) {
             <AnswerCard key={r.id} card={r} index={page * perPage + i} />
           ))}
         </motion.div>
-      </AnimatePresence>
       <div className="mt-6 flex items-center justify-between font-display text-3xl text-cream/70">
         <span>📱 Who wrote each answer? Make your guesses on your phone!</span>
         {pages > 1 && (

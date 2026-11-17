@@ -123,7 +123,11 @@ function HostDashboard({ view }: { view: ClientView }) {
   const openTv = () => window.open(`#/tv/${view.roomCode}`, `wst-tv-${view.roomCode}`);
 
   return (
-    <main className="bg-party min-h-[100dvh] p-4 lg:p-6" data-testid="host-app" data-phase={view.phase}>
+    <main className="bg-party min-h-[100dvh] p-4 lg:p-6" data-testid="host-app"
+      data-phase={view.phase}
+      data-round={view.round?.number ?? 0}
+      data-reveal={view.round?.reveal ? `${view.round.reveal.index}:${view.round.reveal.stage}` : ""}
+    >
       <ConnectionBanner />
       <header className="mb-5 flex flex-wrap items-center gap-4">
         <Logo size="sm" />

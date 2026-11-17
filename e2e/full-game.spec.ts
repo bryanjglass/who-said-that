@@ -121,6 +121,7 @@ test("four players play a full five-round game, then a rematch", async ({ browse
       await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "submission", { timeout: 15_000 });
     } else {
       await expect(host.getByTestId("host-app")).toHaveAttribute("data-phase", "prompt");
+      await expect(host.getByTestId("host-app")).toHaveAttribute("data-round", String(round));
       await host.getByTestId("host-primary").click(); // Start answering now
     }
 
@@ -190,10 +191,12 @@ test("four players play a full five-round game, then a rematch", async ({ browse
       const text = (await tv.getByTestId("tv-reveal-text").textContent())!;
       const author = NAMES.find((n) => text === answerText(n, round))!;
       expect(author).toBeTruthy();
+      await expect(host.getByTestId("host-app")).toHaveAttribute("data-reveal", `${i}:suspects`);
       await host.getByTestId("host-primary").click(); // Reveal author
       await expect(reveal).toHaveAttribute("data-stage", "author");
       await expect(tv.getByTestId("tv-reveal-author")).toContainText(`It was ${author}!`);
       await expect(phones[author].getByTestId("reveal-outcome")).toContainText("That's yours!");
+      await expect(host.getByTestId("host-app")).toHaveAttribute("data-reveal", `${i}:author`);
       await host.getByTestId("host-primary").click(); // Next answer / Show scores
     }
 
@@ -206,6 +209,7 @@ test("four players play a full five-round game, then a rematch", async ({ browse
     for (const n of NAMES) {
       await expect(phones[n].getByTestId("score-total")).toHaveText(`${totals[n].toLocaleString("en-US")} pts`);
     }
+    await expect(host.getByTestId("host-app")).toHaveAttribute("data-phase", "scoreboard");
     await host.getByTestId("host-primary").click(); // Next round / Final results
   }
 
@@ -215,14 +219,19 @@ test("four players play a full five-round game, then a rematch", async ({ browse
   await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "gameOver");
   await expect(tv.getByTestId("tv-winners")).toContainText("Abby");
   await expect.poll(() => readStandings(tv, "tv-standing-row")).toEqual(totals);
-  const ranks = await tv.getByTestId("tv-standing-row").evaluateAll((rows) =>
-    rows.map((r) => `${r.getAttribute("data-rank")}:${r.getAttribute("data-name")}`),
-  );
-  expect(ranks).toEqual(["1:Abby", "2:Dad", "3:Mom", "4:Owen"]);
+  // Polls until the outgoing scoreboard screen has finished animating away.
+  await expect
+    .poll(() =>
+      tv.getByTestId("tv-standing-row").evaluateAll((rows) =>
+        rows.map((r) => `${r.getAttribute("data-rank")}:${r.getAttribute("data-name")}`),
+      ),
+    )
+    .toEqual(["1:Abby", "2:Dad", "3:Mom", "4:Owen"]);
   await expect(phones.Abby.getByTestId("final-phone")).toContainText("You won!");
   await expect(phones.Owen.getByTestId("final-score")).toHaveText("750 pts");
 
   // ---- Rematch: same roster, fresh scores ----
+  await expect(host.getByTestId("host-app")).toHaveAttribute("data-phase", "gameOver");
   await host.getByTestId("host-primary").click(); // Rematch
   await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "prompt");
   await expect(tv.getByTestId("tv-round")).toContainText("Round 1");

@@ -11,7 +11,7 @@
  * advancing simply re-renders the next state, so animations can be skipped at
  * any time and never affect scoring.
  */
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { POINTS } from "../../../../shared/constants";
 import type { ClientView, PlayerPublic } from "../../../../shared/views";
@@ -55,7 +55,6 @@ export function RevealScene({ view }: { view: ClientView }) {
       <div className="absolute inset-x-0 top-[230px] flex items-center justify-center gap-14 px-20">
         {/* Mystery → author */}
         <div className="relative flex h-[300px] w-[300px] items-center justify-center" style={{ perspective: 900 }}>
-          <AnimatePresence mode="popLayout" initial={false}>
             {author ? (
               <motion.div
                 key="author"
@@ -69,11 +68,10 @@ export function RevealScene({ view }: { view: ClientView }) {
                 </div>
               </motion.div>
             ) : (
-              <motion.div key="mystery" exit={{ rotateY: -90, scale: 0.6 }} transition={{ duration: 0.25 }} className="motion-safe:animate-wobble">
+              <motion.div key="mystery" transition={{ duration: 0.25 }} className="motion-safe:animate-wobble">
                 <MysteryAvatar size={250} />
               </motion.div>
             )}
-          </AnimatePresence>
         </div>
 
         <motion.div
@@ -94,7 +92,6 @@ export function RevealScene({ view }: { view: ClientView }) {
 
       {/* Headline */}
       <div className="absolute inset-x-0 top-[570px] flex justify-center">
-        <AnimatePresence mode="popLayout" initial={false}>
           {author ? (
             <motion.div
               key="it-was"
@@ -118,7 +115,6 @@ export function RevealScene({ view }: { view: ClientView }) {
               {card.totalGuesses === 0 ? "Nobody made a guess…" : "Who said that?!"}
             </motion.p>
           )}
-        </AnimatePresence>
       </div>
 
       {/* Suspects + guessers */}

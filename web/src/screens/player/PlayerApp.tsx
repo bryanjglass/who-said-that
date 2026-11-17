@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORY_LABELS, LIMITS } from "../../../../shared/constants";
 import type { ClientView, MyPrivateView } from "../../../../shared/views";
@@ -191,12 +191,10 @@ function PlayerGame({ view, me }: { view: ClientView; me: MyPrivateView }) {
       <PlayerHeader view={view} me={me} />
       {timed && <TimerBar timer={view.timer} className="mb-4" />}
       {view.paused && <p className="mb-3 rounded-2xl bg-pop-orange/20 px-3 py-2 text-center font-semibold">⏸ The host paused the game</p>}
-      <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={`${view.phase}-${view.round?.prompt.id ?? ""}`}
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -30 }}
           transition={{ duration: 0.2 }}
           className="flex flex-1 flex-col"
         >
@@ -208,7 +206,6 @@ function PlayerGame({ view, me }: { view: ClientView; me: MyPrivateView }) {
           {view.phase === "scoreboard" && <ScorePhone view={view} me={me} />}
           {view.phase === "gameOver" && <FinalPhone view={view} me={me} />}
         </motion.div>
-      </AnimatePresence>
     </>
   );
 }
