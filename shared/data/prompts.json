@@ -1,0 +1,605 @@
+{
+  "version": 1,
+  "prompts": [
+    {
+      "id": "silly-001",
+      "category": "silly",
+      "text": "What's the worst possible name for a superhero?"
+    },
+    {
+      "id": "silly-002",
+      "category": "silly",
+      "text": "What's the most useless superpower imaginable?"
+    },
+    {
+      "id": "silly-003",
+      "category": "silly",
+      "text": "If you were arrested for something ridiculous, what would it probably be?"
+    },
+    {
+      "id": "silly-004",
+      "category": "silly",
+      "text": "What's the worst thing to hear from a pilot?"
+    },
+    {
+      "id": "silly-005",
+      "category": "silly",
+      "text": "What would be a terrible flavor of ice cream?"
+    },
+    {
+      "id": "silly-006",
+      "category": "silly",
+      "text": "What's the worst name for a pet goldfish?"
+    },
+    {
+      "id": "silly-007",
+      "category": "silly",
+      "text": "What would a dinosaur's favorite snack be today?"
+    },
+    {
+      "id": "silly-008",
+      "category": "silly",
+      "text": "What's the worst thing to find in your sandwich?"
+    },
+    {
+      "id": "silly-009",
+      "category": "silly",
+      "text": "What would be the most annoying thing for a robot to say every morning?"
+    },
+    {
+      "id": "silly-010",
+      "category": "silly",
+      "text": "Invent a brand-new holiday. What's it called?"
+    },
+    {
+      "id": "silly-011",
+      "category": "silly",
+      "text": "What's a terrible slogan for a toothpaste brand?"
+    },
+    {
+      "id": "silly-012",
+      "category": "silly",
+      "text": "What's the worst thing a magician could pull out of a hat?"
+    },
+    {
+      "id": "silly-013",
+      "category": "silly",
+      "text": "What would be the most ridiculous new Olympic sport?"
+    },
+    {
+      "id": "silly-014",
+      "category": "silly",
+      "text": "What's the worst thing to yell in a library?"
+    },
+    {
+      "id": "silly-015",
+      "category": "silly",
+      "text": "What would a carrot say if it could talk?"
+    },
+    {
+      "id": "silly-016",
+      "category": "silly",
+      "text": "What's the silliest name for a boat?"
+    },
+    {
+      "id": "silly-017",
+      "category": "silly",
+      "text": "What's the worst possible flavor for a birthday cake?"
+    },
+    {
+      "id": "silly-018",
+      "category": "silly",
+      "text": "What would aliens find most confusing about Earth?"
+    },
+    {
+      "id": "silly-019",
+      "category": "silly",
+      "text": "What's the worst theme for a birthday party?"
+    },
+    {
+      "id": "silly-020",
+      "category": "silly",
+      "text": "What would you name a pet rock?"
+    },
+    {
+      "id": "silly-021",
+      "category": "silly",
+      "text": "What would a cat list under \"Special Skills\" on its résumé?"
+    },
+    {
+      "id": "silly-022",
+      "category": "silly",
+      "text": "What's a terrible name for a restaurant?"
+    },
+    {
+      "id": "silly-023",
+      "category": "silly",
+      "text": "What's the worst thing for a GPS to say?"
+    },
+    {
+      "id": "silly-024",
+      "category": "silly",
+      "text": "What would a sloth complain about?"
+    },
+    {
+      "id": "silly-025",
+      "category": "silly",
+      "text": "Invent a new dance move. What's it called?"
+    },
+    {
+      "id": "silly-026",
+      "category": "silly",
+      "text": "What's the worst possible prize in a cereal box?"
+    },
+    {
+      "id": "silly-027",
+      "category": "silly",
+      "text": "What's the weirdest thing a wizard could turn you into?"
+    },
+    {
+      "id": "silly-028",
+      "category": "silly",
+      "text": "What would a penguin's favorite TV show be?"
+    },
+    {
+      "id": "silly-029",
+      "category": "silly",
+      "text": "What's the worst job for a giraffe?"
+    },
+    {
+      "id": "silly-030",
+      "category": "silly",
+      "text": "What's the worst thing to say to a talking parrot?"
+    },
+    {
+      "id": "family-001",
+      "category": "family",
+      "text": "What would your pet complain about if it could talk?"
+    },
+    {
+      "id": "family-002",
+      "category": "family",
+      "text": "If you could ban one household chore forever, what would it be?"
+    },
+    {
+      "id": "family-003",
+      "category": "family",
+      "text": "If our family had a reality TV show, what would it be called?"
+    },
+    {
+      "id": "family-004",
+      "category": "family",
+      "text": "What's the most-said phrase in our house?"
+    },
+    {
+      "id": "family-005",
+      "category": "family",
+      "text": "What would our family's secret handshake involve?"
+    },
+    {
+      "id": "family-006",
+      "category": "family",
+      "text": "What's the best excuse for not cleaning your room?"
+    },
+    {
+      "id": "family-007",
+      "category": "family",
+      "text": "What would be the title of a movie about your life?"
+    },
+    {
+      "id": "family-008",
+      "category": "family",
+      "text": "What snack would you hide so nobody else in the family finds it?"
+    },
+    {
+      "id": "family-009",
+      "category": "family",
+      "text": "What would our family's motto be?"
+    },
+    {
+      "id": "family-010",
+      "category": "family",
+      "text": "If our house could talk, what would it say about us?"
+    },
+    {
+      "id": "family-011",
+      "category": "family",
+      "text": "What's the worst gift you could give a family member?"
+    },
+    {
+      "id": "family-012",
+      "category": "family",
+      "text": "What's the best thing to do on a rainy Saturday?"
+    },
+    {
+      "id": "family-013",
+      "category": "family",
+      "text": "If you were in charge of dinner for a week, what would be on the menu?"
+    },
+    {
+      "id": "family-014",
+      "category": "family",
+      "text": "What new rule would you add to our house?"
+    },
+    {
+      "id": "family-015",
+      "category": "family",
+      "text": "What's one thing you'd pack for a family trip to the moon?"
+    },
+    {
+      "id": "family-016",
+      "category": "family",
+      "text": "What's the funniest thing that could happen at a family reunion?"
+    },
+    {
+      "id": "family-017",
+      "category": "family",
+      "text": "If our family were a band, what would we be called?"
+    },
+    {
+      "id": "family-018",
+      "category": "family",
+      "text": "What's the most annoying sound in our house?"
+    },
+    {
+      "id": "family-019",
+      "category": "family",
+      "text": "What's the worst thing to find under the couch cushions?"
+    },
+    {
+      "id": "family-020",
+      "category": "family",
+      "text": "What would you name our family's race car?"
+    },
+    {
+      "id": "family-021",
+      "category": "family",
+      "text": "What should the punishment be for putting an empty carton back in the fridge?"
+    },
+    {
+      "id": "family-022",
+      "category": "family",
+      "text": "What's the best part of a lazy weekend at home?"
+    },
+    {
+      "id": "family-023",
+      "category": "family",
+      "text": "If grandparents had a secret talent, what would it be?"
+    },
+    {
+      "id": "family-024",
+      "category": "family",
+      "text": "What's one gadget every family car should have?"
+    },
+    {
+      "id": "family-025",
+      "category": "family",
+      "text": "What's the best way to wake someone up on a Saturday?"
+    },
+    {
+      "id": "family-026",
+      "category": "family",
+      "text": "What's the worst chore to get stuck with on a holiday?"
+    },
+    {
+      "id": "family-027",
+      "category": "family",
+      "text": "If you swapped places with a parent (or kid) for a day, what's the first thing you'd do?"
+    },
+    {
+      "id": "family-028",
+      "category": "family",
+      "text": "What's the most important rule for family game night?"
+    },
+    {
+      "id": "family-029",
+      "category": "family",
+      "text": "What animal would be our family's mascot?"
+    },
+    {
+      "id": "family-030",
+      "category": "family",
+      "text": "What's the best thing to eat as a midnight snack?"
+    },
+    {
+      "id": "hypothetical-001",
+      "category": "hypothetical",
+      "text": "If you could make one completely ridiculous law, what would it be?"
+    },
+    {
+      "id": "hypothetical-002",
+      "category": "hypothetical",
+      "text": "What's something you would absolutely refuse to do for a million dollars?"
+    },
+    {
+      "id": "hypothetical-003",
+      "category": "hypothetical",
+      "text": "If you were principal for a day, what rule would you introduce?"
+    },
+    {
+      "id": "hypothetical-004",
+      "category": "hypothetical",
+      "text": "What would you put on a billboard in the middle of town?"
+    },
+    {
+      "id": "hypothetical-005",
+      "category": "hypothetical",
+      "text": "If you could have any animal as a sidekick, which would you pick?"
+    },
+    {
+      "id": "hypothetical-006",
+      "category": "hypothetical",
+      "text": "If you could only eat one food forever, what would it be?"
+    },
+    {
+      "id": "hypothetical-007",
+      "category": "hypothetical",
+      "text": "If you were invisible for a day, what's the first thing you'd do?"
+    },
+    {
+      "id": "hypothetical-008",
+      "category": "hypothetical",
+      "text": "If you could talk to one kind of animal, which would it be?"
+    },
+    {
+      "id": "hypothetical-009",
+      "category": "hypothetical",
+      "text": "If you ran a theme park, what would your signature ride be called?"
+    },
+    {
+      "id": "hypothetical-010",
+      "category": "hypothetical",
+      "text": "If you could time travel just once, where would you go?"
+    },
+    {
+      "id": "hypothetical-011",
+      "category": "hypothetical",
+      "text": "If you could swap lives with a cartoon character, who would it be?"
+    },
+    {
+      "id": "hypothetical-012",
+      "category": "hypothetical",
+      "text": "If you could rename our town, what would you call it?"
+    },
+    {
+      "id": "hypothetical-013",
+      "category": "hypothetical",
+      "text": "If you could add one subject to every school, what would it be?"
+    },
+    {
+      "id": "hypothetical-014",
+      "category": "hypothetical",
+      "text": "If you could only say three words for the rest of the day, which would you pick?"
+    },
+    {
+      "id": "hypothetical-015",
+      "category": "hypothetical",
+      "text": "If you opened a store, what would it sell?"
+    },
+    {
+      "id": "hypothetical-016",
+      "category": "hypothetical",
+      "text": "If you had a robot butler, what would you name it?"
+    },
+    {
+      "id": "hypothetical-017",
+      "category": "hypothetical",
+      "text": "If you shrank to the size of an ant, where would you explore first?"
+    },
+    {
+      "id": "hypothetical-018",
+      "category": "hypothetical",
+      "text": "If you were a famous chef, what would your signature dish be?"
+    },
+    {
+      "id": "hypothetical-019",
+      "category": "hypothetical",
+      "text": "If you could have dinner with anyone from history, who would it be?"
+    },
+    {
+      "id": "hypothetical-020",
+      "category": "hypothetical",
+      "text": "If you could live in any video game world, which would it be?"
+    },
+    {
+      "id": "hypothetical-021",
+      "category": "hypothetical",
+      "text": "If your shadow could do one thing on its own, what would it do?"
+    },
+    {
+      "id": "hypothetical-022",
+      "category": "hypothetical",
+      "text": "If you could instantly become an expert at one thing, what would it be?"
+    },
+    {
+      "id": "hypothetical-023",
+      "category": "hypothetical",
+      "text": "If you were a friendly ghost, how would you haunt people?"
+    },
+    {
+      "id": "hypothetical-024",
+      "category": "hypothetical",
+      "text": "If you invented a new color, what would you call it?"
+    },
+    {
+      "id": "hypothetical-025",
+      "category": "hypothetical",
+      "text": "If you were in charge of the weather for a day, what would you do?"
+    },
+    {
+      "id": "hypothetical-026",
+      "category": "hypothetical",
+      "text": "If you could live inside any book or movie, which would it be?"
+    },
+    {
+      "id": "hypothetical-027",
+      "category": "hypothetical",
+      "text": "If you could make any animal the size of an elephant, which would you choose?"
+    },
+    {
+      "id": "hypothetical-028",
+      "category": "hypothetical",
+      "text": "If you won a lifetime supply of something, what would you want it to be?"
+    },
+    {
+      "id": "hypothetical-029",
+      "category": "hypothetical",
+      "text": "If you were a superhero, what would your catchphrase be?"
+    },
+    {
+      "id": "hypothetical-030",
+      "category": "hypothetical",
+      "text": "If you could replace stairs with something more fun, what would it be?"
+    },
+    {
+      "id": "wildcard-001",
+      "category": "wildcard",
+      "text": "What's the worst advice you could give a new kid at school?"
+    },
+    {
+      "id": "wildcard-002",
+      "category": "wildcard",
+      "text": "What's the most dramatic way to announce you're going to bed?"
+    },
+    {
+      "id": "wildcard-003",
+      "category": "wildcard",
+      "text": "What's the worst thing to hear from a dentist?"
+    },
+    {
+      "id": "wildcard-004",
+      "category": "wildcard",
+      "text": "What would your autobiography be called?"
+    },
+    {
+      "id": "wildcard-005",
+      "category": "wildcard",
+      "text": "What's a terrible tagline for a summer camp?"
+    },
+    {
+      "id": "wildcard-006",
+      "category": "wildcard",
+      "text": "What's the strangest thing you could put in a time capsule?"
+    },
+    {
+      "id": "wildcard-007",
+      "category": "wildcard",
+      "text": "What would make school 100% more exciting?"
+    },
+    {
+      "id": "wildcard-008",
+      "category": "wildcard",
+      "text": "What's the worst thing to say during a job interview?"
+    },
+    {
+      "id": "wildcard-009",
+      "category": "wildcard",
+      "text": "What would be the most surprising headline in tomorrow's news?"
+    },
+    {
+      "id": "wildcard-010",
+      "category": "wildcard",
+      "text": "What's a terrible name for a new smartphone?"
+    },
+    {
+      "id": "wildcard-011",
+      "category": "wildcard",
+      "text": "What's the worst excuse for being late?"
+    },
+    {
+      "id": "wildcard-012",
+      "category": "wildcard",
+      "text": "What would be the worst possible message in a fortune cookie?"
+    },
+    {
+      "id": "wildcard-013",
+      "category": "wildcard",
+      "text": "What should robots never be allowed to do?"
+    },
+    {
+      "id": "wildcard-014",
+      "category": "wildcard",
+      "text": "What's the most unexpected thing to find in a treasure chest?"
+    },
+    {
+      "id": "wildcard-015",
+      "category": "wildcard",
+      "text": "What's a rule every video game should have?"
+    },
+    {
+      "id": "wildcard-016",
+      "category": "wildcard",
+      "text": "What would be the worst ending to a fairy tale?"
+    },
+    {
+      "id": "wildcard-017",
+      "category": "wildcard",
+      "text": "What's the weirdest thing to bring to show-and-tell?"
+    },
+    {
+      "id": "wildcard-018",
+      "category": "wildcard",
+      "text": "What's the worst name for a hurricane?"
+    },
+    {
+      "id": "wildcard-019",
+      "category": "wildcard",
+      "text": "What's something that sounds fancy but really isn't?"
+    },
+    {
+      "id": "wildcard-020",
+      "category": "wildcard",
+      "text": "What would a toddler's campaign slogan be if they ran for mayor?"
+    },
+    {
+      "id": "wildcard-021",
+      "category": "wildcard",
+      "text": "What's the worst way to start a speech?"
+    },
+    {
+      "id": "wildcard-022",
+      "category": "wildcard",
+      "text": "What's the most suspicious thing to say at a museum?"
+    },
+    {
+      "id": "wildcard-023",
+      "category": "wildcard",
+      "text": "What's the worst thing to hear from a tour guide?"
+    },
+    {
+      "id": "wildcard-024",
+      "category": "wildcard",
+      "text": "What would a cartoon villain's favorite snack be?"
+    },
+    {
+      "id": "wildcard-025",
+      "category": "wildcard",
+      "text": "What's a terrible name for a rock band?"
+    },
+    {
+      "id": "wildcard-026",
+      "category": "wildcard",
+      "text": "What would you find in a dragon's junk drawer?"
+    },
+    {
+      "id": "wildcard-027",
+      "category": "wildcard",
+      "text": "What's the least helpful thing a lifeguard could say?"
+    },
+    {
+      "id": "wildcard-028",
+      "category": "wildcard",
+      "text": "What's the best thing to shout from the top of a mountain?"
+    },
+    {
+      "id": "wildcard-029",
+      "category": "wildcard",
+      "text": "What's the strangest thing someone could collect?"
+    },
+    {
+      "id": "wildcard-030",
+      "category": "wildcard",
+      "text": "What would a talking refrigerator warn you about?"
+    }
+  ]
+}
