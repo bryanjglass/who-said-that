@@ -178,6 +178,18 @@ describe("game creation & lobby", () => {
     expect(room.world.state.players).toHaveLength(4);
   });
 
+  it("tells the host when the TV display connects and disconnects", async () => {
+    const { world, host, tv } = await createRoom();
+    expect(host.lastView().host!.tvConnections).toBe(1);
+    const tv2 = world.connect();
+    await world.send(tv2, { type: "hello", role: "tv" });
+    expect(host.lastView().host!.tvConnections).toBe(2);
+    await world.disconnect(tv);
+    await world.disconnect(tv2);
+    expect(host.lastView().host!.tvConnections).toBe(0);
+    expect(host.lastView().hostConnected).toBe(true);
+  });
+
   it("rejects a forged host token", async () => {
     const { world } = await createRoom();
     const evil = world.connect();

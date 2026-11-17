@@ -129,7 +129,7 @@ function projectScoreboard(state: GameState): RoundSummaryView | null {
     promptText: round.prompt.text,
     skipped: !!round.skipped,
     standings: buildStandings(byJoinOrder(state), scores, round.scoresBefore, roundPoints),
-    highlights: round.results ? roundHighlights(round.results) : [],
+    highlights: round.results ? roundHighlights(round.results, state.players.length) : [],
   };
 }
 

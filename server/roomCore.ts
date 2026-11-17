@@ -147,6 +147,8 @@ export class RoomCore {
       if (playerId) changed = setPresence(state, playerId, true, this.platform.now()) || changed;
       changed = tick(state, this.ctx()) || changed;
       if (changed) await this.commit();
+      // Host/TV presence is shown to the host, so everyone gets a fresh view.
+      else if (role === "host" || role === "tv") this.broadcast();
       else this.sendState(conn);
       return;
     }
@@ -193,7 +195,16 @@ export class RoomCore {
     if (!this.state) return;
     const changed = this.reconcilePresence(conn);
     const ticked = tick(this.state, this.ctx());
-    if (changed || ticked) await this.commit(conn);
+    if (changed || ticked) {
+      await this.commit(conn);
+    } else {
+      const role = conn.getMeta()?.role;
+      if (role === "host" || role === "tv") {
+        this.closingConnId = conn.getMeta()?.connId ?? null;
+        this.broadcast(conn);
+        this.closingConnId = null;
+      }
+    }
   }
 
   async onAlarm() {

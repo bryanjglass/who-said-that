@@ -123,7 +123,7 @@ function leaders(counts: Record<string, number>): string[] {
 }
 
 /** Per-round highlights shown on the scoreboard. */
-export function roundHighlights(results: RoundResults): Highlight[] {
+export function roundHighlights(results: RoundResults, playerCount = Infinity): Highlight[] {
   const fooled: Record<string, number> = {};
   const correct: Record<string, number> = {};
   const exposed: string[] = [];
@@ -135,7 +135,9 @@ export function roundHighlights(results: RoundResults): Highlight[] {
     }
   }
   const out: Highlight[] = [];
-  const mysterious = leaders(fooled);
+  // A "highlight" shared by every player isn't a highlight.
+  const distinct = (ids: string[]) => (ids.length < playerCount ? ids : []);
+  const mysterious = distinct(leaders(fooled));
   if (mysterious.length) {
     const n = fooled[mysterious[0]!]!;
     out.push({
@@ -145,7 +147,7 @@ export function roundHighlights(results: RoundResults): Highlight[] {
       playerIds: mysterious,
     });
   }
-  const readers = leaders(correct);
+  const readers = distinct(leaders(correct));
   if (readers.length) {
     const n = correct[readers[0]!]!;
     out.push({

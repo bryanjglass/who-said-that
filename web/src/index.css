@@ -1,0 +1,77 @@
+@import "@fontsource/fredoka/400.css";
+@import "@fontsource/fredoka/500.css";
+@import "@fontsource/fredoka/600.css";
+@import "@fontsource/fredoka/700.css";
+@import "@fontsource/nunito/400.css";
+@import "@fontsource/nunito/700.css";
+@import "@fontsource/nunito/800.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-ink font-body text-cream antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+/* Playful dotted backdrop used by every screen */
+.bg-party {
+  background-color: #120c2b;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(155, 107, 255, 0.28), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(255, 79, 139, 0.22), transparent 38%),
+    radial-gradient(circle at 70% 90%, rgba(45, 225, 252, 0.18), transparent 40%),
+    radial-gradient(rgba(255, 255, 255, 0.06) 1.5px, transparent 1.5px);
+  background-size: auto, auto, auto, 28px 28px;
+}
+
+.spotlight {
+  background: radial-gradient(ellipse at 50% 35%, rgba(255, 233, 160, 0.25), rgba(18, 12, 43, 0) 55%);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.speech-bubble {
+  position: relative;
+}
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -26px;
+  left: 70px;
+  border-width: 28px 18px 0 18px;
+  border-style: solid;
+  border-color: #fff7e6 transparent transparent transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Avoid iOS zoom-on-focus: inputs must be >= 16px */
+input,
+textarea,
+select {
+  font-size: max(16px, 1em);
+}
