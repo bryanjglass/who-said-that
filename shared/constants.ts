@@ -44,6 +44,12 @@ export const LIMITS = {
   avatarCount: 16,
   /** "Get ready" prompt reveal before answering opens. */
   promptSeconds: 6,
+  /** Reveal: how long each answer shows its suspects before the author is unmasked. */
+  revealSuspectsSeconds: 5,
+  /** Reveal: how long the unmasked author (and who got it right) stays up. */
+  revealAuthorSeconds: 6,
+  /** How long round standings stay up before the next round (or final results). */
+  scoreboardSeconds: 12,
   minTimerSeconds: 10,
   maxTimerSeconds: 300,
   /**

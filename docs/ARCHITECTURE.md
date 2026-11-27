@@ -27,10 +27,12 @@ Another party game would reuse these and swap out `shared/engine`.
 lobby ─start─▶ prompt ─(6s or host)─▶ submission ─(all answered | timer | host)─▶ guessing
                  ▲                         │ fewer than 2 answers                     │ (all locked | timer | host)
                  │                         ▼                                          ▼
-                 │                     scoreboard ◀─(host, after last answer)── reveal (per answer: suspects → author)
-                 └──(host: next round)─────┤
-                                           └──(host, after final round)─▶ gameOver ─rematch─▶ prompt | lobby
+                 │                     scoreboard ◀─(after last answer)── reveal (per answer: suspects 5s → author 6s, or host)
+                 └──(12s or host)──────────┤
+                                           └──(12s or host, after final round)─▶ gameOver ─rematch─▶ prompt | lobby
 ```
+
+- **Hands-free after Start.** Every in-game phase, including each reveal step and the scoreboard, runs on a server timer, so a game plays to `gameOver` with no host input. The host can still pause/resume, skip ahead with `advance`, skip a prompt, or end the game. `gameOver` waits for the host to start a rematch. The durations live in `LIMITS` in `shared/constants.ts`.
 
 - Every transition happens in `shared/engine/engine.ts`. The engine is pure: time and randomness are passed in through `EngineContext`, which makes it deterministic in tests.
 - Actions that aren't valid in the current phase are rejected with a typed error code: `wrong_phase`, `too_late`, `stale`, `already_locked`, `unauthorized`, and so on.
@@ -81,15 +83,15 @@ The host controller deliberately gets the same secrecy as the TV, because the ho
 - **Durable Object hibernation.** The room uses the WebSocket Hibernation API. Sockets survive eviction, and identity lives in `serializeAttachment`. State is written with `storage.put` before any broadcast, because output gates hold messages until the write completes. The constructor reloads state in `blockConcurrencyWhile`.
 - **Presence** is worked out from the sockets that are actually open (`reconcilePresence`) on every event. That keeps it correct after hibernation or a restart.
 - **Reconnection.** Clients use exponential backoff with jitter, reconnect immediately on `visibilitychange`, `online` or `focus`, and re-send `hello` with the stored token. Refreshing a phone, the TV or the host tab restores the exact current view.
-- **Never stuck.** Every waiting phase has a timer. The reveal and scoreboard are host-paced, and the host can also end a phase early, skip a prompt, or end the game.
+- **Never stuck.** Every in-game phase has a timer, including the reveal steps and the scoreboard, so a game finishes even if nobody touches anything. The host can also end a phase early, skip a prompt, or end the game.
 - **Auto-advance** happens when every player is done, or when every *present* player is done and at least one player is present. A player counts as present while connected, or for 15 seconds after disconnecting, so a phone that briefly sleeps isn't skipped.
-- **Animations never gate state.** Screens animate in when they mount, but nothing waits for an exit animation, so the DOM always shows the latest server state. An earlier `AnimatePresence` version could leave the TV a step behind, and could freeze in background tabs where requestAnimationFrame is paused. Animations are skippable, because the host can always advance, and they respect `prefers-reduced-motion` through `MotionConfig reducedMotion="user"` and the CSS rules.
+- **Animations never gate state.** Screens animate in when they mount, but nothing waits for an exit animation, so the DOM always shows the latest server state. An earlier `AnimatePresence` version could leave the TV a step behind, and could freeze in background tabs where requestAnimationFrame is paused. Animations are skippable, because the host can always advance, and the reveal timers are long enough for them to finish, and they respect `prefers-reduced-motion` through `MotionConfig reducedMotion="user"` and the CSS rules.
 
 ## Design decisions
 
 These are areas where the spec left room, and what was chosen.
 
-- **Two-stage reveal (suspects, then author)**, each step advanced by the host. This gives the dramatic pause and keeps authorship off the wire until the moment it's revealed.
+- **Two-stage reveal (suspects, then author)**, each step paced by a server timer (the host can skip ahead). This gives the dramatic pause and keeps authorship off the wire until the moment it's revealed.
 - **The Prompt phase is a 6-second "get ready"** that the host can skip.
 - **Skipping a prompt** replaces it within the same round: answers are discarded, no points are awarded, and the round number doesn't change.
 - **A round with fewer than 2 answers** counts as played. It shows a "round skipped" scoreboard and awards no points, so the game can't loop forever if players are idle.

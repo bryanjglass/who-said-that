@@ -88,11 +88,11 @@ function primaryAction(view: ClientView, a: ReturnType<typeof useHostActions>): 
       return { label: "End Guessing Now ▶", run: a.advance };
     case "reveal": {
       const rv = round!.reveal!;
-      if (rv.stage === "suspects") return { label: "Reveal Author ▶", run: a.advance };
-      return { label: rv.index < rv.total - 1 ? "Next Answer ▶" : "Show Scores ▶", run: a.advance };
+      if (rv.stage === "suspects") return { label: "Reveal Author Now ▶", run: a.advance };
+      return { label: rv.index < rv.total - 1 ? "Next Answer Now ▶" : "Show Scores Now ▶", run: a.advance };
     }
     case "scoreboard":
-      return { label: round!.number >= round!.total ? "Final Results ▶" : "Next Round ▶", run: a.advance };
+      return { label: round!.number >= round!.total ? "Final Results Now ▶" : "Next Round Now ▶", run: a.advance };
     case "gameOver":
       return { label: "Rematch ▶", run: () => a.rematch(false) };
   }
@@ -101,8 +101,9 @@ function primaryAction(view: ClientView, a: ReturnType<typeof useHostActions>): 
 function HostDashboard({ view }: { view: ClientView }) {
   const actions = useHostActions(view);
   const primary = primaryAction(view, actions);
-  const timed = view.phase === "prompt" || view.phase === "submission" || view.phase === "guessing";
+  // Every in-game phase runs on a server timer, so the game plays itself after Start.
   const inGame = view.phase !== "lobby" && view.phase !== "gameOver";
+  const canSkipPrompt = view.phase === "prompt" || view.phase === "submission" || view.phase === "guessing";
 
   // Keyboard shortcuts: Space / → = primary action, P = pause/resume.
   useEffect(() => {
@@ -151,7 +152,7 @@ function HostDashboard({ view }: { view: ClientView }) {
         <div className="flex flex-col gap-5">
           {/* Main control card */}
           <Card className="flex flex-col gap-4">
-            {timed && (
+            {inGame && (
               <div className="flex items-center gap-4">
                 <TimerBar timer={view.timer} className="flex-1" />
                 {view.paused ? (
@@ -161,11 +162,11 @@ function HostDashboard({ view }: { view: ClientView }) {
                 )}
               </div>
             )}
-            {!timed && inGame && view.paused && (
-              <div className="flex items-center justify-between rounded-2xl bg-pop-orange/20 px-4 py-2">
-                <span>Game is paused — the next timer will start frozen.</span>
-                <Button size="sm" variant="success" onClick={actions.resume} data-testid="resume">▶ Resume</Button>
-              </div>
+            {inGame && (
+              <p className="text-sm text-cream/60" data-testid="host-autopilot">
+                ⚙️ The game runs itself from here — every step, including the reveal and the scoreboard, moves on
+                by timer. Use the buttons only to pause or skip ahead.
+              </p>
             )}
             <PhasePanel view={view} actions={actions} />
             <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
@@ -179,7 +180,7 @@ function HostDashboard({ view }: { view: ClientView }) {
                   Change Settings / New Players
                 </Button>
               )}
-              {timed && (
+              {canSkipPrompt && (
                 <Button variant="secondary" onClick={() => actions.skip()} data-testid="skip-prompt">⤼ Skip Question</Button>
               )}
               {inGame && (
@@ -193,6 +194,11 @@ function HostDashboard({ view }: { view: ClientView }) {
                 </Button>
               )}
             </div>
+            {view.phase === "lobby" && (
+              <p className="text-sm text-cream/60">
+                Once you press Start, the whole game plays itself on timers. You can pause or skip ahead at any time.
+              </p>
+            )}
             {primary && <p className="text-sm text-cream/40">Tip: press Space or → for the big button, P to pause.</p>}
           </Card>
         </div>
@@ -322,7 +328,7 @@ function PhasePanel({ view, actions }: { view: ClientView; actions: ReturnType<t
               Written by <Avatar index={author.avatar} size={36} /> <strong>{author.name}</strong> — fooled {rv.current.fooledIds!.length}, spotted by {rv.current.correctGuesserIds!.length}
             </p>
           ) : (
-            <p className="text-cream/60">{rv.current.totalGuesses} guesses made. Press the button when the room is ready for the big reveal!</p>
+            <p className="text-cream/60">{rv.current.totalGuesses} guesses made. The author is unmasked when the timer runs out.</p>
           )}
         </div>
       );

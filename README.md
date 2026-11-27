@@ -59,12 +59,12 @@ Then browse to `http://<your-LAN-IP>:5173` on the computer. You can also set `VI
 
 ## How to play
 
-1. **Lobby**: the host creates a room. The TV shows a QR code and room code. Each player picks a name (duplicates are rejected, ignoring case) and one of 16 cartoon avatars. The host chooses 5, 7 or 10 rounds, the answer and guess timers, and the question categories. A game needs 3 to 10 connected players, and 4 or more is best.
+1. **Lobby**: the host creates a room. The TV shows a QR code and room code. Each player picks a name (duplicates are rejected, ignoring case) and one of 16 cartoon avatars. The host chooses 5, 7 or 10 rounds, the answer and guess timers, and the question categories. A game needs 3 to 10 connected players, and 4 or more is best. Once the host presses **Start**, the game **runs itself** to the final results: every step below moves on by a server timer, so the host can join from a phone and just play. The host controller can still **pause** (P), skip ahead, skip a question or end the game.
 2. **Prompt**: the question appears on the TV, with a 6-second "get ready" countdown.
 3. **Answer**: everyone types a secret answer of up to 140 characters and can edit it until time runs out. The TV only shows *how many* answers are in.
 4. **Guess**: the answers appear in shuffled order, labelled A, B, C… Each player assigns an author to every answer except their own, which is marked "Your Answer" on their phone only. The same person can be picked for several answers. Players then **Lock In**.
-5. **Big Reveal**: the host steps through each answer. First the TV shows *who was accused* (vote counts only). Then the real author is revealed, correct guessers glow green, people who were fooled fade out, and points fly.
-6. **Scoreboard**: standings with rank movement, plus *Most Mysterious*, *Mind Reader* and *Totally Exposed* highlights.
+5. **Big Reveal**: the game steps through each answer on a timer. First the TV shows *who was accused* (vote counts only) for 5 seconds. Then the real author is revealed for 6 seconds: correct guessers glow green, people who were fooled fade out, and points fly.
+6. **Scoreboard**: standings with rank movement, plus *Most Mysterious*, *Mind Reader* and *Totally Exposed* highlights. It counts down for 12 seconds, then the next round starts automatically.
 7. **Final results**: the winner (or tied winners) gets confetti and a crown, and there are fun awards. Then the host can start a **Rematch**.
 
 ### Scoring (computed only on the server)
@@ -111,7 +111,8 @@ That's the Playwright end-to-end test (`e2e/full-game.spec.ts`), run against the
 - One host controller, plus a TV display opened through the host's **Open TV Display** button.
 - Four phones: two emulating iPhone and two emulating Android Chrome.
 - All five rounds, including:
-  - automatic timer transitions (the prompt countdown, a submission timeout when one player doesn't answer, and a guessing timeout when one player never locks in);
+  - hands-free play: four of the five rounds run from prompt to scoreboard to the next round (and the final results) with no host input, while in round 2 the host skips ahead through every step;
+  - automatic timer transitions (the prompt countdown, a submission timeout when one player doesn't answer, a guessing timeout when one player never locks in, each reveal step and the scoreboard countdown);
   - partial guesses and an answer edited before the deadline;
   - a mix of correct and incorrect guesses from a deterministic guess plan.
 - Exact score assertions after every round, on the host, the TV and every phone. Final totals are hand-checked and ties are ranked correctly.

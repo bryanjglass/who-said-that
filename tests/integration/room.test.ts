@@ -538,7 +538,8 @@ describe("reveal & scoring", () => {
     await room.world.act(room.host, stale);
     await room.world.act(room.host, stale);
     expect(room.host.lastError()?.code).toBe("stale");
-    await room.world.advance(10 * 60 * 1000); // any lingering alarm
+    expect(room.world.state.phase).toBe("reveal"); // the first advance closed guessing
+    await room.world.advance(LIMITS.revealSuspectsSeconds * 1000 - 1); // a lingering alarm, short of the next step
     room.world.hibernate();
     await room.world.core.onAlarm();
     expect(scores(room)).toEqual(EXPECTED);
@@ -618,11 +619,13 @@ describe("timers", () => {
     expect(room.world.state.round!.responses).toHaveLength(2);
   });
 
-  it("never gets stuck: a round completes with nobody acting", async () => {
+  it("never gets stuck: with nobody acting, timers carry the game to the end", async () => {
     const room = await setupRoom();
     await room.world.act(room.host, { type: "start" });
     await room.world.advance(60 * 60_000);
-    expect(room.world.state.phase).toBe("scoreboard");
+    expect(room.world.state.phase).toBe("gameOver");
+    expect(room.world.state.history).toHaveLength(room.world.state.config.rounds);
+    expect(room.world.state.history.every((h) => h.skipped)).toBe(true);
   });
 
   it("does not wait for a player who has disconnected (after a grace period)", async () => {
@@ -647,6 +650,134 @@ describe("timers", () => {
     expect(room.world.state.round!.prompt.id).not.toBe(first);
     expect(room.world.state.round!.answers).toEqual({});
     expect(room.world.state.phase).toBe("prompt");
+  });
+});
+
+describe("hands-free play", () => {
+  /** Let server timers run (alarm by alarm) until the game reaches `phase`. */
+  async function runUntil(room: TestRoom, phase: string) {
+    for (let guard = 0; room.world.state.phase !== phase; guard++) {
+      if (guard > 500) throw new Error(`never reached ${phase}`);
+      const alarm = room.world.alarm;
+      if (alarm === null) throw new Error(`no timer running in ${room.world.state.phase}`);
+      await room.world.advance(Math.max(0, alarm - room.world.now));
+    }
+  }
+
+  it("after Start, the game reaches game over with no further host input", async () => {
+    const room = await setupRoom(["A", "B", "C"]);
+    await room.world.act(room.host, { type: "configure", config: { rounds: 5 } });
+    await room.world.act(room.host, { type: "start" });
+    await room.world.disconnect(room.host); // the host can even walk away
+
+    for (let r = 1; r <= 5; r++) {
+      await runUntil(room, "submission");
+      const ans = { A: `a${r}`, B: `b${r}`, C: `c${r}` };
+      await submitAll(room, ans);
+      await guessAll(room, {
+        A: { [ans.B]: "B", [ans.C]: "B" },
+        B: { [ans.A]: "A", [ans.C]: "A" },
+        C: { [ans.A]: "B", [ans.B]: "A" },
+      });
+      expect(room.world.state.phase).toBe("reveal");
+      await runUntil(room, "scoreboard");
+      expect(room.tv.lastView().scoreboard!.number).toBe(r);
+      expect(room.tv.lastView().timer!.durationMs).toBe(LIMITS.scoreboardSeconds * 1000);
+    }
+    await runUntil(room, "gameOver");
+    expect(room.world.state.timer).toBeNull(); // game over waits for the host's rematch
+    expect(room.world.alarm === null || room.world.alarm > room.world.now + 60 * 60_000).toBe(true);
+    const final = room.tv.lastView().final!;
+    expect(final.standings.map((s) => [s.name, s.score])).toEqual([
+      ["A", 3750],
+      ["B", 3750],
+      ["C", 2500],
+    ]);
+    expect(room.world.state.history).toHaveLength(5);
+  });
+
+  it("paces the reveal: suspects, then the author, answer by answer, then the scoreboard", async () => {
+    const room = await setupRoom();
+    await startToSubmission(room);
+    await submitAll(room, ANSWERS);
+    await guessAll(room, { Abby: {}, Owen: {}, Mom: {}, Dad: {} });
+    const total = room.world.state.round!.responses!.length;
+    const step = () => {
+      const rv = room.tv.lastView().round!.reveal!;
+      return `${rv.index}:${rv.stage}`;
+    };
+    for (let i = 0; i < total; i++) {
+      expect(step()).toBe(`${i}:suspects`);
+      expect(room.tv.lastView().timer!.durationMs).toBe(LIMITS.revealSuspectsSeconds * 1000);
+      await room.world.advance(LIMITS.revealSuspectsSeconds * 1000 - 1);
+      expect(step()).toBe(`${i}:suspects`);
+      await room.world.advance(1);
+      expect(step()).toBe(`${i}:author`);
+      expect(room.tv.lastView().timer!.durationMs).toBe(LIMITS.revealAuthorSeconds * 1000);
+      await room.world.advance(LIMITS.revealAuthorSeconds * 1000);
+    }
+    expect(room.world.state.phase).toBe("scoreboard");
+    await room.world.advance(LIMITS.scoreboardSeconds * 1000 - 1);
+    expect(room.world.state.phase).toBe("scoreboard");
+    await room.world.advance(1);
+    expect(room.world.state.phase).toBe("prompt");
+    expect(room.world.state.round!.number).toBe(2);
+  });
+
+  it("the host can still skip ahead; the next step gets a fresh timer", async () => {
+    const room = await setupRoom();
+    await startToSubmission(room);
+    await submitAll(room, ANSWERS);
+    await guessAll(room, { Abby: {}, Owen: {}, Mom: {}, Dad: {} });
+    await room.world.advance(2_000);
+    await hostAdvance(room.world, room.host); // reveal the author early
+    expect(room.world.state.round!.revealStage).toBe("author");
+    expect(room.world.state.timer!.deadline).toBe(room.world.now + LIMITS.revealAuthorSeconds * 1000);
+    await room.world.advance(LIMITS.revealAuthorSeconds * 1000);
+    expect(room.world.state.round!.revealIndex).toBe(1);
+  });
+
+  it("host pause holds the reveal and the scoreboard until resumed", async () => {
+    const room = await setupRoom();
+    await startToSubmission(room);
+    await submitAll(room, ANSWERS);
+    await guessAll(room, { Abby: {}, Owen: {}, Mom: {}, Dad: {} });
+    await room.world.act(room.host, { type: "pause" });
+    await room.world.advance(10 * 60_000);
+    expect(room.world.state.phase).toBe("reveal");
+    expect(room.world.state.round!.revealStage).toBe("suspects");
+    await revealAll(room); // skipping ahead while paused: new timers start frozen
+    expect(room.world.state.phase).toBe("scoreboard");
+    expect(room.tv.lastView().timer).toMatchObject({ paused: true, remainingMs: LIMITS.scoreboardSeconds * 1000 });
+    await room.world.advance(10 * 60_000);
+    expect(room.world.state.phase).toBe("scoreboard");
+    await room.world.act(room.host, { type: "resume" });
+    await room.world.advance(LIMITS.scoreboardSeconds * 1000);
+    expect(room.world.state.phase).toBe("prompt");
+    expect(room.world.state.round!.number).toBe(2);
+  });
+
+  it("a skipped round's scoreboard also moves on by itself", async () => {
+    const room = await setupRoom();
+    await startToSubmission(room);
+    await submitAll(room, { Abby: "lonely" });
+    await room.world.advance(room.world.state.config.submissionSeconds * 1000);
+    expect(room.world.state.phase).toBe("scoreboard");
+    await room.world.advance(LIMITS.scoreboardSeconds * 1000);
+    expect(room.world.state.phase).toBe("prompt");
+    expect(room.world.state.round!.number).toBe(2);
+  });
+
+  it("ending the game from the reveal stops the reveal timer", async () => {
+    const room = await setupRoom();
+    await startToSubmission(room);
+    await submitAll(room, ANSWERS);
+    await guessAll(room, { Abby: {}, Owen: {}, Mom: {}, Dad: {} });
+    await room.world.act(room.host, { type: "endGame" });
+    expect(room.world.state.phase).toBe("gameOver");
+    expect(room.world.state.timer).toBeNull();
+    await room.world.advance(60_000);
+    expect(room.world.state.phase).toBe("gameOver");
   });
 });
 

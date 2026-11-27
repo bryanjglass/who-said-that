@@ -4,6 +4,11 @@
  *   lobby → prompt → submission → guessing → reveal → scoreboard ─┬→ prompt (next round)
  *                     │ (<2 answers) ────────────────→ scoreboard  └→ gameOver → (rematch) → prompt | lobby
  *
+ * Once the host presses Start the game is hands-free: every in-game phase
+ * (including each reveal step and the scoreboard) runs on a server timer, so a
+ * game plays through to gameOver with no further host input. The host can
+ * still pause/resume, skip ahead (`advance`), skip a prompt or end the game.
+ *
  * All functions are pure with respect to I/O: time and randomness are injected
  * through EngineContext, and the state object is mutated in place only after
  * an action has been fully validated. The Durable Object persists the state
@@ -205,6 +210,12 @@ function onTimerExpired(state: GameState, ctx: EngineContext): boolean {
     case "guessing":
       closeGuessing(state, ctx);
       return true;
+    case "reveal":
+      advanceReveal(state, ctx);
+      return true;
+    case "scoreboard":
+      nextRoundOrEnd(state, ctx);
+      return true;
     default:
       state.timer = null;
       return true;
@@ -340,9 +351,9 @@ function closeSubmission(state: GameState, ctx: EngineContext) {
 function closeGuessing(state: GameState, ctx: EngineContext) {
   const round = state.round!;
   state.phase = "reveal";
-  state.timer = null;
   round.revealIndex = 0;
   round.revealStage = "suspects";
+  setPhaseTimer(state, LIMITS.revealSuspectsSeconds, ctx.now);
   if (round.results) return; // idempotency guard — never score twice
   const results = scoreRound(
     round.responses ?? [],
@@ -369,10 +380,31 @@ function closeGuessing(state: GameState, ctx: EngineContext) {
   void ctx;
 }
 
+/** One reveal step: suspects → author, then on to the next answer (or the scoreboard). */
+function advanceReveal(state: GameState, ctx: EngineContext) {
+  const r = state.round!;
+  if (r.revealStage === "suspects") {
+    r.revealStage = "author";
+    setPhaseTimer(state, LIMITS.revealAuthorSeconds, ctx.now);
+  } else if (r.revealIndex < (r.responses?.length ?? 0) - 1) {
+    r.revealIndex += 1;
+    r.revealStage = "suspects";
+    setPhaseTimer(state, LIMITS.revealSuspectsSeconds, ctx.now);
+  } else {
+    finishRound(state, ctx);
+  }
+}
+
+function nextRoundOrEnd(state: GameState, ctx: EngineContext) {
+  const round = state.round!;
+  if (round.number >= state.config.rounds) endGame(state);
+  else startRound(state, round.number + 1, ctx);
+}
+
 function finishRound(state: GameState, ctx: EngineContext) {
   const round = state.round!;
   state.phase = "scoreboard";
-  state.timer = null;
+  setPhaseTimer(state, LIMITS.scoreboardSeconds, ctx.now);
   if (state.history.some((h) => h.number === round.number)) return;
   let firstAnswerBy: string | null = null;
   if (!round.skipped) {
@@ -663,21 +695,11 @@ function dispatch(state: GameState, actor: Actor, action: Action, ctx: EngineCon
         case "guessing":
           closeGuessing(state, ctx);
           return OK_CHANGED;
-        case "reveal": {
-          const r = round!;
-          if (r.revealStage === "suspects") {
-            r.revealStage = "author";
-          } else if (r.revealIndex < (r.responses?.length ?? 0) - 1) {
-            r.revealIndex += 1;
-            r.revealStage = "suspects";
-          } else {
-            finishRound(state, ctx);
-          }
+        case "reveal":
+          advanceReveal(state, ctx);
           return OK_CHANGED;
-        }
         case "scoreboard":
-          if (round!.number >= state.config.rounds) endGame(state);
-          else startRound(state, round!.number + 1, ctx);
+          nextRoundOrEnd(state, ctx);
           return OK_CHANGED;
         default:
           return fail("wrong_phase", "Nothing to advance");

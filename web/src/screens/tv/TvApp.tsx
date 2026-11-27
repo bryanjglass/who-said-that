@@ -12,6 +12,7 @@ import { displayJoinHost, joinUrl } from "../../lib/config";
 import { burstConfetti } from "../../lib/effects";
 import { setSoundEnabled, sfx } from "../../lib/sound";
 import { storage } from "../../lib/storage";
+import { useCountdown } from "../../lib/useCountdown";
 import { useGame } from "../../store/gameStore";
 import { RevealScene } from "./RevealScene";
 
@@ -400,12 +401,22 @@ const HIGHLIGHT_EMOJI: Record<string, string> = { mostMysterious: "🕶️", min
 function TvScoreboard({ view }: { view: ClientView }) {
   const sb = view.scoreboard!;
   const byId = new Map(view.players.map((p) => [p.id, p]));
+  const { remainingMs } = useCountdown(view.timer);
+  const last = sb.number >= view.config.rounds;
   return (
     <div className="flex h-full gap-14 px-20 pb-16 pt-36">
       <div className="flex flex-1 flex-col gap-6">
-        <h1 className="font-display text-7xl font-bold">
-          Round {sb.number} <span className="text-pop-yellow">Results</span>
-        </h1>
+        <div className="flex items-baseline justify-between gap-8">
+          <h1 className="font-display text-7xl font-bold">
+            Round {sb.number} <span className="text-pop-yellow">Results</span>
+          </h1>
+          {view.timer && (
+            <p className="font-display text-4xl text-cream/80" data-testid="tv-next-countdown">
+              {last ? "Final results in " : "Next round in "}
+              <span className="tabular-nums text-pop-yellow">{view.paused ? "❚❚" : Math.ceil(remainingMs / 1000)}</span>
+            </p>
+          )}
+        </div>
         {sb.skipped ? (
           <p className="rounded-3xl bg-pop-orange/20 p-8 font-display text-4xl" data-testid="tv-round-skipped">
             Not enough answers came in this round — no points awarded. On to the next one!
