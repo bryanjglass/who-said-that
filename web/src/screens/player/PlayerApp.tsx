@@ -530,7 +530,10 @@ function ScorePhone({ view, me }: { view: ClientView; me: MyPrivateView }) {
       {mentions.map((h) => (
         <p key={h.kind} className="rounded-full bg-pop-cyan/20 px-4 py-2 font-display text-lg">🏅 {h.title}!</p>
       ))}
-      <p className="text-cream/60">Waiting for the host…</p>
+      <div className="w-full" data-testid="next-round-countdown">
+        <p className="mb-1 text-cream/60">{sb.number >= view.config.rounds ? "Final results in…" : "Next round in…"}</p>
+        <TimerBar timer={view.timer} />
+      </div>
     </div>
   );
 }

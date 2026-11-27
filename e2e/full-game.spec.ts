@@ -55,6 +55,8 @@ async function readStandings(page: Page, testId: string): Promise<Record<string,
 }
 
 test("four players play a full five-round game, then a rematch", async ({ browser }) => {
+  // The game is hands-free after Start, so most of this test waits on real server timers.
+  test.setTimeout(600_000);
   // ---- Host + TV -----------------------------------------------------------
   const hostCtx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const host = await hostCtx.newPage();
@@ -114,9 +116,12 @@ test("four players play a full five-round game, then a rematch", async ({ browse
   const totals = { Abby: 0, Owen: 0, Mom: 0, Dad: 0 } as Record<Name, number>;
 
   for (let round = 1; round <= ROUNDS; round++) {
+    // Every round but round 2 is played with no host input at all; in round 2 the host skips ahead.
+    const hostDriven = round === 2;
+
     // ---- Prompt ----
-    await expect(tv.getByTestId("tv-round")).toContainText(`Round ${round}`);
-    if (round === 1) {
+    await expect(tv.getByTestId("tv-round")).toContainText(`Round ${round}`, { timeout: 20_000 });
+    if (!hostDriven) {
       // Automatic timer transition: prompt → submission after the countdown.
       await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "submission", { timeout: 15_000 });
     } else {
@@ -183,25 +188,31 @@ test("four players play a full five-round game, then a rematch", async ({ browse
     await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "reveal", { timeout: (TIMER + 10) * 1000 });
 
     // ---- Reveal ----
+    // Hands-free rounds wait out each step's server timer; the host-driven round clicks through early.
+    const step = { timeout: 15_000 };
     for (let i = 0; i < authors.length; i++) {
       const reveal = tv.getByTestId("tv-reveal");
+      await expect(reveal).toHaveAttribute("data-index", String(i), step);
       await expect(reveal).toHaveAttribute("data-stage", "suspects");
-      await expect(reveal).toHaveAttribute("data-index", String(i));
       await expect(tv.getByTestId("tv-reveal-author")).toHaveCount(0); // author hidden
       const text = (await tv.getByTestId("tv-reveal-text").textContent())!;
       const author = NAMES.find((n) => text === answerText(n, round))!;
       expect(author).toBeTruthy();
-      await expect(host.getByTestId("host-app")).toHaveAttribute("data-reveal", `${i}:suspects`);
-      await host.getByTestId("host-primary").click(); // Reveal author
-      await expect(reveal).toHaveAttribute("data-stage", "author");
+      if (hostDriven) {
+        await expect(host.getByTestId("host-app")).toHaveAttribute("data-reveal", `${i}:suspects`);
+        await host.getByTestId("host-primary").click(); // Reveal author now
+      }
+      await expect(reveal).toHaveAttribute("data-stage", "author", step);
       await expect(tv.getByTestId("tv-reveal-author")).toContainText(`It was ${author}!`);
       await expect(phones[author].getByTestId("reveal-outcome")).toContainText("That's yours!");
-      await expect(host.getByTestId("host-app")).toHaveAttribute("data-reveal", `${i}:author`);
-      await host.getByTestId("host-primary").click(); // Next answer / Show scores
+      if (hostDriven) {
+        await expect(host.getByTestId("host-app")).toHaveAttribute("data-reveal", `${i}:author`);
+        await host.getByTestId("host-primary").click(); // Next answer / Show scores now
+      }
     }
 
     // ---- Scoreboard ----
-    await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "scoreboard");
+    await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "scoreboard", step);
     const pts = expectedRoundPoints(round, authors);
     for (const n of NAMES) totals[n] += pts[n];
     await expect.poll(() => readStandings(host, "standing-row")).toEqual(totals);
@@ -210,13 +221,19 @@ test("four players play a full five-round game, then a rematch", async ({ browse
       await expect(phones[n].getByTestId("score-total")).toHaveText(`${totals[n].toLocaleString("en-US")} pts`);
     }
     await expect(host.getByTestId("host-app")).toHaveAttribute("data-phase", "scoreboard");
-    await host.getByTestId("host-primary").click(); // Next round / Final results
+    if (hostDriven) {
+      await host.getByTestId("host-primary").click(); // Next round now
+    } else {
+      // The scoreboard counts down, then moves on by itself.
+      await expect(tv.getByTestId("tv-next-countdown")).toContainText(round === ROUNDS ? "Final results in" : "Next round in");
+      await expect(phones.Abby.getByTestId("next-round-countdown")).toBeVisible();
+    }
   }
 
   // ---- Final results ----
   // Hand-checked totals for this plan (see plannedGuess):
   expect(totals).toEqual({ Abby: 10250, Owen: 750, Mom: 4000, Dad: 5500 });
-  await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "gameOver");
+  await expect(tv.getByTestId("tv-app")).toHaveAttribute("data-phase", "gameOver", { timeout: 20_000 });
   await expect(tv.getByTestId("tv-winners")).toContainText("Abby");
   await expect.poll(() => readStandings(tv, "tv-standing-row")).toEqual(totals);
   // Polls until the outgoing scoreboard screen has finished animating away.
